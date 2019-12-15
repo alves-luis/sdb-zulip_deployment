@@ -1,0 +1,9 @@
+---
+- name: Start Zulip Redis
+  docker_container:
+    name: redis
+    image: 'quay.io/sameersbn/redis:latest'
+    ports:
+      - "6379:6379"
+    volumes:
+      - '/opt/docker/zulip/redis:/var/lib/redis:rw'

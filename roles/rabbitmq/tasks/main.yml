@@ -1,0 +1,13 @@
+---
+- name: Start Zulip RabbitMQ
+  docker_container:
+    name: rabbit
+    image: 'rabbitmq:3.7.7'
+    restart_policy: always
+    ports:
+      - "5672:5672"
+    env:
+      RABBITMQ_DEFAULT_USER: 'zulip'
+      RABBITMQ_DEFAULT_PASS: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
+    volumes:
+      - '/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw'

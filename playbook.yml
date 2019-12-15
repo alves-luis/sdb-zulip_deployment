@@ -3,4 +3,28 @@
   become: yes
   roles:
     - docker
-    - zulip-db
+
+- hosts: postgres
+  become: yes
+  roles:
+    - postgres
+
+- hosts: memcached
+  become: yes
+  roles:
+    - memcached
+
+- hosts: redis
+  become: yes
+  roles:
+    - redis
+
+- hosts: rabbitmq
+  become: yes
+  roles:
+    - rabbitmq
+
+- hosts: zulip
+  become: yes
+  roles:
+    - zulip
