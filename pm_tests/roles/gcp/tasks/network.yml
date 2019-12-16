@@ -50,7 +50,8 @@
         ports:
           - '22'
           - '80'
-          - '5601' # AQUI OU EM BAIXO?
+          - '443'
+          - '5601'
           - '9200'
       - ip_protocol: icmp
     network:
@@ -68,10 +69,13 @@
     allowed:
       - ip_protocol: tcp
         ports:
-          - '5601'
-          - '9200'
+          - "0-65535"
+      - ip_protocol: udp
+        ports:
+          - "0-65535"
+      - ip_protocol: icmp
     source_ranges: # IP DA NOVA NETWORK? 10.240.0.0/16?
-      - 10.128.0.0/9
+      - 0.0.0.0/0 #10.128.0.0/9
     network:
       selfLink: "global/networks/{{ network.name }}"
     project: "{{ gcp_project }}"

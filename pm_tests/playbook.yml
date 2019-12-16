@@ -57,7 +57,14 @@
 - hosts: monitor
   become: yes
   roles:
-    - { role: elastic-kibana, monitor_vm_ip: '10.0.0.0' } # mudar ip
+    - { role: elastic-kibana, monitor_vm_ip: "34.90.123.11" } # mudar ip 
+
+
+- hosts: app # mudar para all
+  become: yes
+  roles:
+    - { role: metricbeat, monitor_vm_ip: "34.90.123.11" }
+
 
 # - hosts: app
 #   become: yes

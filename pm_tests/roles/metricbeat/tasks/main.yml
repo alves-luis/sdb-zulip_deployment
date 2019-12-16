@@ -1,0 +1,27 @@
+
+- name: Download and extract Metricbeat
+  unarchive:
+    src: https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.5.0-linux-x86_64.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: Configure Metricbeat
+  template:
+    src: "metricbeat.yml.j2"
+    dest: /usr/local/bin/metricbeat-7.5.0-linux-x86_64/metricbeat.yml
+    owner: root
+    mode: 0777
+
+# - name: Change ownership of Elasticsearch
+#   file:
+#     path: /usr/local/bin/metricbeat-7.5.0-linux-x86_64
+#     state: directory
+#     recurse: yes
+#     owner: root
+#     #group: foo
+
+# - name: Setup Metricbeat
+#   shell: /usr/local/bin/metricbeat-7.5.0-linux-x86_64/./metricbeat setup
+
+# - name: Start Metricbeat
+#   shell: /usr/local/bin/metricbeat-7.5.0-linux-x86_64/./metricbeat -e
