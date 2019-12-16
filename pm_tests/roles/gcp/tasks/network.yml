@@ -30,6 +30,17 @@
   register: address_db
   loop: "{{ addresses_db }}"
 
+- name: create a address
+  gcp_compute_address:
+    name: "{{ item }}"
+    region: "{{ gcp_region }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: address_monitor
+  loop: "{{ addresses_monitor }}"
+
 
 - name: internal/external firewall rules
   gcp_compute_firewall:
@@ -39,6 +50,9 @@
         ports:
           - '22'
           - '80'
+          - '443'
+          - '5601'
+          - '9200'
       - ip_protocol: icmp
     network:
       selfLink: "global/networks/{{ network.name }}"
@@ -55,10 +69,13 @@
     allowed:
       - ip_protocol: tcp
         ports:
-          - '5432'
-          - '5000'
+          - "0-65535"
+      - ip_protocol: udp
+        ports:
+          - "0-65535"
+      - ip_protocol: icmp
     source_ranges: # IP DA NOVA NETWORK? 10.240.0.0/16?
-      - 10.128.0.0/9
+      - 0.0.0.0/0 #10.128.0.0/9
     network:
       selfLink: "global/networks/{{ network.name }}"
     project: "{{ gcp_project }}"

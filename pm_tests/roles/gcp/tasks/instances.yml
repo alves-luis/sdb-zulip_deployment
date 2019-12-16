@@ -61,6 +61,37 @@
   loop: "{{ instances_db }}"
 
 
+- name: create monitor instances
+  gcp_compute_instance:
+    name: "{{item.name}}"
+    machine_type: "{{ gcp_machine_type }}"
+    disks:
+      - auto_delete: true
+        boot: true
+        source: "{{ disk_monitor.results[item.index - 1] }}"
+    metadata:
+      startup-script: |
+        #!/bin/bash
+        apt-get update -y
+        apt-get upgrade -y
+        apt-get install aptitude -y
+        apt-get install daemon
+    tags:
+      items: "{{ item.tag }}"
+    network_interfaces:
+      - network: "{{ network }}"
+        access_configs:
+        - name: External NAT
+          nat_ip: "{{ address_monitor.results[item.index - 1] }}"
+          type: ONE_TO_ONE_NAT
+    zone: "{{ gcp_zone }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: instance_monitor
+  loop: "{{ instances_monitor }}"
+
 
 - name: Add hosts to in memory inventory
   add_host:
@@ -74,6 +105,12 @@
     name: "{{ item.networkInterfaces[0].accessConfigs[0].natIP }}"
     groups: "{{ item.tags['items'] | join(',') }}"
   loop: "{{ instance_db.results }}"
+
+- name: Add hosts to in memory inventory 3 # juntar ao de cima no loop? nao consegui
+  add_host:
+    name: "{{ item.networkInterfaces[0].accessConfigs[0].natIP }}"
+    groups: "{{ item.tags['items'] | join(',') }}"
+  loop: "{{ instance_monitor.results }}" 
 
   
 - name: Wait for instances to respond
