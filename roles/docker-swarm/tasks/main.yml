@@ -1,0 +1,100 @@
+---
+- name: Start Zulip memcached
+  docker_swarm_service:
+    name: memcached
+    image: 'quay.io/sameersbn/memcached:latest'
+    publish:
+      - published_port: 11211
+        target_port: 11211
+    restart_config:
+      condition: any
+    networks:
+      - zulip_network
+
+- name: Start Zulip postgres
+  docker_swarm_service:
+    name: postgres
+    image: zulip/zulip-postgresql:10
+    mounts:
+      - target: '/var/lib/postgresql/data'
+        source: '/opt/docker/zulip/postgresql/data'
+    publish:
+      - published_port: 5432
+        target_port: 5432
+    env:
+      POSTGRES_DB: 'zulip'
+      POSTGRES_USER: 'zulip'
+      POSTGRES_PASSWORD: "{{ db_password }}"
+    networks:
+      - zulip_network
+
+- name: Start Zulip RabbitMQ
+  docker_swarm_service:
+    name: rabbit
+    image: 'rabbitmq:3.7.7'
+    restart_config:
+      condition: any
+    publish:
+      - published_port: 5672
+        target_port: 5672
+    env:
+      RABBITMQ_DEFAULT_USER: 'zulip'
+      RABBITMQ_DEFAULT_PASS: '{{ rabbit_password }}'
+    mounts:
+      - target: '/var/lib/rabbitmq'
+        source: '/opt/docker/zulip/rabbitmq'
+    networks:
+      - zulip_network
+
+- name: Start Zulip Redis
+  docker_swarm_service:
+    name: redis
+    image: 'quay.io/sameersbn/redis:latest'
+    publish:
+      - published_port: 6379
+        target_port: 6379
+    mounts:
+      - target: '/var/lib/redis'
+        source: '/opt/docker/zulip/redis'
+    networks:
+      - zulip_network
+
+- name: Start Zulip main container
+  docker_swarm_service:
+    name: zulip
+    image: 'zulip/docker-zulip:2.0.7-0'
+    publish:
+      - published_port: 80
+        target_port: 80
+      - published_port: 443
+        target_port: 443
+    state: present
+    env:
+      DB_HOST: "{{ db_host }}"
+      DB_HOST_PORT: '5432'
+      DB_USER: 'zulip'
+      SSL_CERTIFICATE_GENERATION: 'self-signed'
+      SETTING_MEMCACHED_LOCATION: "{{ memcached_host }}"
+      SETTING_RABBITMQ_HOST: "{{ rabbitmq_host }}"
+      SETTING_REDIS_HOST: "{{ redis_host }}"
+      SECRETS_email_password: '123456789'
+      # These should match POSTGRES_PASSWORD and RABBITMQ_DEFAULT_PASS.
+      SECRETS_rabbitmq_password: " {{ rabbit_password }}"
+      SECRETS_postgres_password: "{{ db_password }}"
+      SECRETS_secret_key: "{{ secret_key }}"
+      SETTING_EXTERNAL_HOST: '{{ zulip_host }}'
+      SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+      SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
+      SETTING_EMAIL_HOST_USER: 'noreply@example.com'
+      SETTING_EMAIL_PORT: '587'
+      # It seems that the email server needs to use ssl or tls and can't be used without it
+      SETTING_EMAIL_USE_SSL: 'False'
+      SETTING_EMAIL_USE_TLS: 'True'
+      ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
+      # Uncomment this when configuring the mobile push notifications service
+      # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
+    mounts:
+      - target: '/data'
+        source: '/opt/docker/zulip/zulip'
+    networks:
+      - zulip_network

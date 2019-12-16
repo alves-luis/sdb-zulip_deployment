@@ -1,7 +1,0 @@
----
-db_host: 192.168.77.21
-db_password: 'password'
-memcached_host: 192.168.77.22
-redis_host: 192.168.77.23
-rabbitmq_host: 192.168.77.24
-zulip_host: 192.168.77.25

@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
 
       if machine_id != N
         machine.vm.provider :virtualbox do |vb|
-          vb.memory = 512
+          vb.memory = 2048
           vb.cpus = 1
         end
       end
@@ -22,10 +22,6 @@ Vagrant.configure("2") do |config|
       # Only execute once the Ansible provisioner,
       # when all the machines are up and ready.
       if machine_id == N
-        machine.vm.provider :virtualbox do |vb|
-          vb.memory = 4000
-          vb.cpus = 1
-        end
         machine.vm.provision :ansible do |ansible|
           # Disable default limit to connect to all the machines
           ansible.raw_arguments = [
