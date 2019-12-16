@@ -1,0 +1,8 @@
+---
+- name: Start Zulip memcached
+  docker_container:
+    name: memcached
+    image: 'quay.io/sameersbn/memcached:latest'
+    ports:
+      - "11211:11211"
+    restart_policy: always

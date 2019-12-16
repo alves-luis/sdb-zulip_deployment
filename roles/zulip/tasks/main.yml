@@ -1,0 +1,35 @@
+---
+- name: Start Zulip main container
+  docker_container:
+    name: zulip
+    image: 'zulip/docker-zulip:2.0.7-0'
+    ports:
+      - "80:80"
+      - "443:443"
+    state: started
+    env:
+      DB_HOST: "{{ db_host }}"
+      DB_HOST_PORT: '5432'
+      DB_USER: 'zulip'
+      SSL_CERTIFICATE_GENERATION: 'self-signed'
+      SETTING_MEMCACHED_LOCATION: "{{ memcached_host }}"
+      SETTING_RABBITMQ_HOST: "{{ rabbitmq_host }}"
+      SETTING_REDIS_HOST: "{{ redis_host }}"
+      SECRETS_email_password: '123456789'
+      # These should match POSTGRES_PASSWORD and RABBITMQ_DEFAULT_PASS.
+      SECRETS_rabbitmq_password: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
+      SECRETS_postgres_password: "{{ db_password }}"
+      SECRETS_secret_key: 'REPLACE_WITH_SECURE_SECRET_KEY'
+      SETTING_EXTERNAL_HOST: '{{ zulip_host }}'
+      SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+      SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
+      SETTING_EMAIL_HOST_USER: 'noreply@example.com'
+      SETTING_EMAIL_PORT: '587'
+      # It seems that the email server needs to use ssl or tls and can't be used without it
+      SETTING_EMAIL_USE_SSL: 'False'
+      SETTING_EMAIL_USE_TLS: 'True'
+      ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
+      # Uncomment this when configuring the mobile push notifications service
+      # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
+    volumes:
+      - '/opt/docker/zulip/zulip:/data:rw'
