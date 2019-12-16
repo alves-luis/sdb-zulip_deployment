@@ -21,21 +21,27 @@
         disks_db:
           - disk-db-01
           - disk-db-02
+        disks_monitor:
+          - disk-monitor-01
         addresses:
           - addr-01
           - addr-02
         addresses_db:
           - addr-db-01
           - addr-db-02
+        addresses_monitor:
+          - addr-monitor-01
         instances:
           - { index: 1, tag: app, name: zulip}         
           - { index: 2, tag: lb, name: nginx}
+        instances_monitor:
+          - { index: 1, tag: monitor, name: monitor}
         instances_db:
           - { index: 1, tag: database, name: db-master}
           - { index: 2, tag: database-slave, name: db-slave}
 
 
-# # Para cada tipo de máquinas (tag)
+
 # - hosts: all
 #   become: yes
 #   roles:
@@ -44,14 +50,14 @@
 # - hosts: database
 #   become: yes
 #   roles:
-#     - { role: db-postgresql, addresses: '*', version: '9.5' }
-#     - { role: postgresql-db, dbname: 'passwords_production' }
-#     - {
-#       role: postgresql-user,
-#       username: 'deployer',
-#       password: "{{ lookup('passwordstore','ansible/uc/db create=true length=8') }}",
-#       dbname: 'passwords_production'
-#       }
+#     - { role: db-postgresql, addresses: '*', version: '9.6' }
+#     - { role: postgresql-db, dbname: 'zulip' }
+#     - { role: postgresql-user, username: 'deployer', password: '123456', dbname: 'zulip' }
+
+- hosts: monitor
+  become: yes
+  roles:
+    - { role: elastic-kibana, monitor_vm_ip: '10.0.0.0' } # mudar ip
 
 # - hosts: app
 #   become: yes
