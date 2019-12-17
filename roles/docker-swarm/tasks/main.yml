@@ -98,3 +98,6 @@
         source: '/opt/docker/zulip/zulip'
     networks:
       - zulip_network
+    reservations:
+      cpus: 1
+      memory: 2048M
