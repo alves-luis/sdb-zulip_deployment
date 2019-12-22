@@ -1,0 +1,167 @@
+# # - name: Download and extract Elasticsearch
+# #   become: yes
+# #   unarchive:
+# #     src: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.5.0-linux-x86_64.tar.gz
+# #     dest: /usr/local/bin
+# #     remote_src: yes
+
+
+# - name: Configure Elasticsearch
+#   template:
+#     src: "elasticsearch.yml.j2"
+#     dest: /usr/local/bin/elasticsearch-7.5.0/config/elasticsearch.yml
+#     #owner: root
+#     #group: elasticsearch
+#     #mode: 0777
+
+
+# # - name: Download and extract Kibana
+# #   unarchive:
+# #     src: https://artifacts.elastic.co/downloads/kibana/kibana-7.5.0-linux-x86_64.tar.gz
+# #     dest: /usr/local/bin
+# #     remote_src: yes
+
+# # - name: Configure Kibana
+# #   template:
+# #     src: "kibana.yml.j2"
+# #     dest: /usr/local/bin/kibana-7.5.0-linux-x86_64/config/kibana.yml
+# #     owner: root
+# #     mode: 0777
+
+# - name: Change ownership of Elasticsearch
+#   file:
+#     path: /usr/local/bin/elasticsearch-7.5.0
+#     state: directory
+#     recurse: yes
+#     owner: root
+#     #group: foo
+
+# # - name: Change ownership of Kibana
+# #   file:
+# #     path: /usr/local/bin/kibana-7.5.0-linux-x86_64
+# #     state: directory
+# #     recurse: yes
+# #     owner: root
+# #     #group: foo
+
+# - name: Configs
+#   become: yes
+#   shell: sysctl -w vm.max_map_count=262144
+    
+
+# - name: Add Elasticsearch as a service
+#   #become: yes
+#   copy:
+#     src: "elastic.service"
+#     dest: /etc/systemd/system/
+#     #owner: root
+#     #group: elasticsearch
+#     #mode: 0777
+
+# - name: Copy Elasticsearch init script
+#   copy:
+#     src: "initElastic.sh"   
+#     dest: /usr/local/bin/elasticsearch-7.5.0/
+#     #owner: root
+#     #group: elasticsearch
+#     #mode: 0777
+
+# - name: Reload daemon configs
+#   become: yes
+#   systemd:
+#     daemon_reload: yes
+
+# - name: Start Elasticsearch as a service
+#   service:
+#     name: elastic
+#     state: started
+#     enabled: yes
+
+# # - name: Start Elasticsearch
+# #   shell: /usr/local/bin/elasticsearch-7.5.0/./initElastic.sh
+
+# # - name: Start service foo
+# #   service:
+# #     name: "/usr/local/bin/elasticsearch-7.5.0/bin/elasticsearch"
+# #     state: started
+
+# # - name: Start Kibana
+# #   shell: /usr/local/bin/kibana-7.5.0/bin/kibana & # daemon -- 
+
+
+
+#####################################################################
+
+---
+
+- name: HTTPS APT transport for Elasticsearch repository.
+  apt:
+    name: apt-transport-https
+    state: present
+
+- name: Add Elasticsearch apt key.
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add Elasticsearch repository.
+  apt_repository:
+    repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
+    state: present
+    update_cache: true
+
+- name: Install Elasticsearch.
+  package:
+    name: elasticsearch
+    state: "{{ elasticsearch_package_state }}"
+
+- name: Configure Elasticsearch.
+  template:
+    src: "elastic.yml.j2"
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: 0660
+
+
+# - name: Force a restart if configuration has changed.
+#   meta: flush_handlers
+
+- name: Configs
+  become: yes
+  shell: sysctl -w vm.max_map_count=262144
+
+- name: Start Elasticsearch.
+  service:
+    name: elasticsearch
+    state: "{{ elasticsearch_service_state }}"
+    enabled: "{{ elasticsearch_service_enabled }}"
+
+
+
+# - name: Add Kibana repository.
+#   apt_repository:
+#     repo: 'deb https://artifacts.elastic.co/packages/7.x/apt stable main'
+#     state: present
+#     update_cache: true
+
+- name: Install Kibana.
+  package:
+    name: "{{ kibana_package }}"
+    state: "{{ kibana_package_state }}"
+
+
+
+- name: Copy Kibana configuration.
+  template:
+    src: "{{ kibana_config_template }}"
+    dest: "{{ kibana_config_file_path }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Ensure Kibana is started and enabled at boot.
+  service:
+    name: kibana
+    state: "{{ kibana_service_state }}"
+    enabled: "{{ kibana_service_enabled }}"
