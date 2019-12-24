@@ -4,6 +4,6 @@ db_password: 'password'
 memcached_host: memcached
 redis_host: redis
 rabbitmq_host: rabbit
-zulip_host: 192.168.77.25 # this should be dynamic!
+# zulip_host: 192.168.77.25 # this should be dynamic!
 rabbit_password: 'password'
 secret_key: 'secure_password'

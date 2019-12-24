@@ -1,4 +1,38 @@
 ---
+# Cria VMs, discos, redes, firewalls......
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+    - role: gcp
+      vars:
+        gcp_zone: us-east1-c
+        gcp_region: us-east1
+        gcp_project: vernal-branch-257511
+        gcp_cred_kind: serviceaccount
+        gcp_cred_file: ~/.gcloud/gcloud.json
+        gcp_machine_type: n1-standard-1
+        source_image: projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-v20191113
+        disk_size: 10
+        disks:
+          - disk-01
+          - disk-02
+          - disk-03
+          - disk-04
+          - disk-05
+        addresses:
+          - addr-01
+          - addr-02
+          - addr-03
+          - addr-04
+          - addr-05
+        instances:
+          - { index: 1, tag: zulip, name: instance-zulip }
+          - { index: 2, tag: postgres, name: instance-postgres }
+          - { index: 3, tag: redis, name: instance-redis }
+          - { index: 4, tag: rabbitmq, name: instance-rabbitmq }
+          - { index: 5, tag: memcached, name: instance-memcached }
+
 - hosts: all
   become: yes
   roles:
@@ -10,7 +44,7 @@
     - name: Init a new swarm
       docker_swarm:
         state: present
-        advertise_addr: 192.168.77.25 # this will obviously be dynamic
+        advertise_addr: "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}"
       register: swarm_info
     - name: Create an Overlay network
       docker_network:
@@ -28,12 +62,16 @@
     - postgres
   become: yes
   tasks:
+    - name: Debug variable
+      debug:
+        msg: "{{ groups['zulip'][0] }} and {{ hostvars[groups['zulip'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
     - name: Join swarm as workers
       docker_swarm:
         state: join
-        advertise_addr: hostvars[groups['ansible_hostname'][0]]
+        advertise_addr: "{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}"
         join_token: "{{ hostvars[groups['zulip'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
-        remote_addrs: [ '192.168.77.25:2377' ] # should be dynamic
+        remote_addrs:
+          - "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}:2377"
 
 - hosts: all
   become: yes
@@ -62,4 +100,6 @@
 - hosts: zulip
   become: yes
   roles:
-    - docker-swarm
+    - role: docker-swarm
+      vars:
+        zulip_host: "{{ groups['zulip'][0] }}"
