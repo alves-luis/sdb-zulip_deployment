@@ -62,9 +62,6 @@
     - postgres
   become: yes
   tasks:
-    - name: Debug variable
-      debug:
-        msg: "{{ groups['zulip'][0] }} and {{ hostvars[groups['zulip'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
     - name: Join swarm as workers
       docker_swarm:
         state: join
