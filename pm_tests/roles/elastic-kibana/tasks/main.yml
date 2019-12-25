@@ -34,6 +34,18 @@
 
 
 - name: Configure Elasticsearch.
+  #become: yes 
+#   replace:
+#     path: /etc/elasticsearch/elasticsearch.yml
+#     regexp: item.var
+#     replace: item.replace
+#     owner: root
+#     group: root
+#     mode: 0644
+#   loop:
+#     - {var: '^#network.host:.*', replace: 'network.host: 0.0.0.0'}
+#     - {var: '^#discovery.seed_hosts:.*', replace: 'discovery.seed_hosts: []'}
+#     - {var: '^#cluster.initial_master_nodes:.*', replace: 'cluster.initial_master_nodes: [{{ monitor_vm_ip }}]'}
   template:
     src: "elastic.yml.j2"
     dest: /etc/elasticsearch/elasticsearch.yml
@@ -66,12 +78,19 @@
 
 
 - name: Copy Kibana configuration.
+#   replace:
+#     path: /etc/kibana/kibana.yml
+#     regexp: item.var
+#     replace: item.replace
+#   loop:
+#     - {var: '#server.host:.*', replace: 'server.host: {{monitor_vm_ip}}'}
+#     - {var: '#elasticsearch.hosts:.*', replace: 'elasticsearch.hosts: ["http://{{monitor_vm_ip}}:9200"]'}
   template:
     src: "{{ kibana_config_template }}"
     dest: "{{ kibana_config_file_path }}"
-    owner: root
-    group: root
-    mode: 0644
+#     owner: root
+#     group: root
+#     mode: 0644
 
 
 - name: Ensure Kibana is started and enabled at boot.

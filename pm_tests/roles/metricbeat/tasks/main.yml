@@ -1,27 +1,59 @@
 
-- name: Download and extract Metricbeat
-  unarchive:
-    src: https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.5.0-linux-x86_64.tar.gz
-    dest: /usr/local/bin
-    remote_src: yes
+---
 
-- name: Configure Metricbeat
+#####################################################################
+###                          REPOSITORY                           ###
+#####################################################################
+
+# - name: HTTPS APT transport for metricbeat repository.
+#   apt:
+#     name: apt-transport-https
+#     state: present
+
+- name: Add metricbeat apt key.
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add metricbeat repository.
+  apt_repository:
+    repo: 'deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main'
+    state: present
+    update_cache: true
+
+
+    
+#####################################################################
+###                          METRICBEAT                           ###
+#####################################################################  
+
+- name: Install Metricbeat.
+  package:
+    name: metricbeat
+    state: "{{ metricbeat_package_state }}"
+
+
+- name: Configure metricbeat.
   template:
-    src: "metricbeat.yml.j2"
-    dest: /usr/local/bin/metricbeat-7.5.0-linux-x86_64/metricbeat.yml
-    owner: root
-    mode: 0777
-
-# - name: Change ownership of Elasticsearch
-#   file:
-#     path: /usr/local/bin/metricbeat-7.5.0-linux-x86_64
-#     state: directory
-#     recurse: yes
+    src: "{{item}}.j2"
+    dest: /etc/metricbeat/{{item}}
+  loop:
+    - "metricbeat.yml"
+    - "metricbeat.reference.yml"
 #     owner: root
-#     #group: foo
+#     group: root
+#     mode: 0644
 
-# - name: Setup Metricbeat
-#   shell: /usr/local/bin/metricbeat-7.5.0-linux-x86_64/./metricbeat setup
+- name: Enable modules
+  become: yes
+  shell: metricbeat modules enable memcached nginx postgresql rabbitmq redis system 
 
-# - name: Start Metricbeat
-#   shell: /usr/local/bin/metricbeat-7.5.0-linux-x86_64/./metricbeat -e
+- name: Setup metricbeat
+  become: yes
+  shell: metricbeat setup --dashboards
+
+- name: Start metricbeat
+  service:
+    name: metricbeat
+    state: "{{ metricbeat_service_state }}"
+    enabled: "{{ metricbeat_service_enabled }}"
