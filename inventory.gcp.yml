@@ -1,0 +1,23 @@
+plugin: gcp_compute
+
+projects:
+  - vernal-branch-257511
+
+zones:
+  - europe-west4-a
+
+filters:
+  - name = zulip-instance*
+
+keyed_groups:
+  - prefix: ''
+    separator: ''
+    key: tags['items']
+
+auth_kind: serviceaccount
+
+service_account_file: ~/.gcloud/gcloud.json
+
+compose:
+  ansible_host_public: networkInterfaces[0].accessConfigs[0].natIP
+  #ansible_host_private: networkInterfaces[0].networkIP

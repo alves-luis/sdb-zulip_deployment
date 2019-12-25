@@ -82,7 +82,7 @@
       SECRETS_rabbitmq_password: " {{ rabbit_password }}"
       SECRETS_postgres_password: "{{ db_password }}"
       SECRETS_secret_key: "{{ secret_key }}"
-      SETTING_EXTERNAL_HOST: '{{ zulip_host }}'
+      SETTING_EXTERNAL_HOST: "{{ zulip_host }}"
       SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
       SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
       SETTING_EMAIL_HOST_USER: 'noreply@example.com'
@@ -100,4 +100,4 @@
       - zulip_network
     reservations:
       cpus: 1
-      memory: 2048M
+      memory: 3000M
