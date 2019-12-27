@@ -1,0 +1,16 @@
+---
+- name: Install nfs-common
+  apt:
+    name: nfs-common
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+
+- name: Mount filestore
+  mount:
+    path: /opt/docker/zulip/
+    src: "{{ filestore_ip }}:/{{ filestore_name }}"
+    fstype: nfs
+    opts: defaults
+    state: mounted
