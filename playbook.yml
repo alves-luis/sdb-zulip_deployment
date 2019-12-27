@@ -138,12 +138,16 @@
 - hosts: monitor
   become: yes
   roles:
-    - { role: elastic-kibana, monitor_vm_ip: "{{ hostvars[groups['monitor'][0]].ansible_all_ipv4_addresses[0] }}" } # {{ groups['monitor'][0] }}
+    - { role: elastic-kibana, monitor_vm_ip: "{{ hostvars['localhost'].instance['results'][5].networkInterfaces[0].networkIP }}" } # 5 -> index 6 - 1
 
 
 - hosts:
-    - postgres 
     - zulip
+    - redis
+    - rabbitmq
+    - memcached
+    - postgres
+
   become: yes
   roles:
-    - { role: metricbeat, monitor_vm_ip: "{{ hostvars[groups['monitor'][0]].ansible_all_ipv4_addresses[0] }}" }
+    - { role: metricbeat, monitor_vm_ip: "{{ hostvars['localhost'].instance['results'][5].networkInterfaces[0].networkIP }}" }

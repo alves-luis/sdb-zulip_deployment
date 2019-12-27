@@ -313,10 +313,10 @@ metricbeat.modules:
   hosts: ["postgres://localhost:5432"]
 
   # Username to use when connecting to PostgreSQL. Empty by default.
-  username: 'zulip'
+  username: zulip
 
   # Password to use when connecting to PostgreSQL. Empty by default.
-  password: 'password'
+  password: password
 
 
 #------------------------------- RabbitMQ Module -------------------------------
@@ -330,8 +330,8 @@ metricbeat.modules:
   # configuration, it has to be set to the same value.
   #management_path_prefix: ""
 
-  username: 'zulip'
-  password: 'password'
+  username: zulip
+  password: '{{rabbit_password}}'
 
 #-------------------------------- Redis Module --------------------------------
 - module: redis
