@@ -36,6 +36,7 @@
           - { index: 5, tag: memcached, name: instance-memcached }
           - { index: 6, tag: monitor, name: instance-monitor}
 
+
 - hosts: 
     - zulip
     - redis
@@ -127,3 +128,22 @@
     - role: docker-swarm
       vars:
         zulip_host: "{{ groups['zulip'][0] }}"
+
+
+
+# #################################################
+# ###                 MONITORING                ###
+# #################################################
+
+- hosts: monitor
+  become: yes
+  roles:
+    - { role: elastic-kibana, monitor_vm_ip: "{{ hostvars[groups['monitor'][0]].ansible_all_ipv4_addresses[0] }}" } # {{ groups['monitor'][0] }}
+
+
+- hosts:
+    - postgres 
+    - zulip
+  become: yes
+  roles:
+    - { role: metricbeat, monitor_vm_ip: "{{ hostvars[groups['monitor'][0]].ansible_all_ipv4_addresses[0] }}" }

@@ -238,36 +238,6 @@ metricbeat.modules:
   #diskio.include_devices: []
 
 
-#-------------------------------- Apache Module --------------------------------
-- module: apache
-  metricsets: ["status"]
-  period: 10s
-  enabled: true
-
-  # Apache hosts
-  hosts: ["http://127.0.0.1"]
-
-  # Path to server status. Default server-status
-  #server_status_path: "server-status"
-
-  # Username of hosts.  Empty by default
-  #username: username
-
-  # Password of hosts. Empty by default
-  #password: password
-
-#--------------------------------- Beat Module ---------------------------------
-- module: beat
-  metricsets:
-    - stats
-    - state
-  period: 10s
-  hosts: ["http://localhost:5066"]
-  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
-
-  # Set to true to send data collected by module to X-Pack
-  # Monitoring instead of metricbeat-* indices.
-  #xpack.enabled: false
 
 
 #-------------------------------- Docker Module --------------------------------
@@ -297,68 +267,8 @@ metricbeat.modules:
     #certificate_authority: "/etc/pki/root/ca.pem"
     #certificate:           "/etc/pki/client/cert.pem"
     #key:                   "/etc/pki/client/cert.key"
-#---------------------------- Elasticsearch Module ----------------------------
-- module: elasticsearch
-  metricsets:
-    - node
-    - node_stats
-    #- index
-    #- index_recovery
-    #- index_summary
-    #- shard
-    #- ml_job
-  period: 10s
-  hosts: ["http://localhost:9200"]
-  #username: "elastic"
-  #password: "changeme"
-  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
 
-  # Set to false to fetch all entries
-  #index_recovery.active_only: true
 
-  # Set to true to send data collected by module to X-Pack
-  # Monitoring instead of metricbeat-* indices.
-  #xpack.enabled: false
-#--------------------------------- HTTP Module ---------------------------------
-- module: http
-  metricsets:
-    - json
-  period: 10s
-  hosts: ["localhost:80"]
-  namespace: "json_namespace"
-  path: "/"
-  #body: ""
-  #method: "GET"
-  #username: "user"
-  #password: "secret"
-  #request.enabled: false
-  #response.enabled: false
-  #json.is_array: false
-  #dedot.enabled: false
-
-- module: http
-  metricsets:
-    - server
-  host: "localhost"
-  port: "8080"
-  enabled: false
-  #paths:
-  #  - path: "/foo"
-  #    namespace: "foo"
-  #    fields: # added to the the response in root. overwrites existing fields
-  #      key: "value"
-
-#-------------------------------- Kibana Module --------------------------------
-- module: kibana
-  metricsets: ["status"]
-  period: 10s
-  hosts: ["localhost:5601"]
-  basepath: ""
-  enabled: true
-
-  # Set to true to send data collected by module to X-Pack
-  # Monitoring instead of metricbeat-* indices.
-  #xpack.enabled: false
 
 
 #------------------------------ Memcached Module ------------------------------
@@ -367,7 +277,6 @@ metricbeat.modules:
   period: 10s
   hosts: ["localhost:11211"]
   enabled: true
-
 
 
 #-------------------------------- Nginx Module --------------------------------
@@ -404,10 +313,10 @@ metricbeat.modules:
   hosts: ["postgres://localhost:5432"]
 
   # Username to use when connecting to PostgreSQL. Empty by default.
-  #username: user
+  username: 'zulip'
 
   # Password to use when connecting to PostgreSQL. Empty by default.
-  #password: pass
+  password: 'password'
 
 
 #------------------------------- RabbitMQ Module -------------------------------
@@ -421,8 +330,8 @@ metricbeat.modules:
   # configuration, it has to be set to the same value.
   #management_path_prefix: ""
 
-  #username: guest
-  #password: guest
+  username: 'zulip'
+  password: 'password'
 
 #-------------------------------- Redis Module --------------------------------
 - module: redis

@@ -25,6 +25,9 @@
       POSTGRES_DB: 'zulip'
       POSTGRES_USER: 'zulip'
       POSTGRES_PASSWORD: "{{ db_password }}"
+      REMOTE_POSTGRES_HOST: 'localhost'
+      REMOTE_POSTGRES_PORT: '5432'
+      REMOTE_POSTGRES_SSLMODE: 'allow'
     networks:
       - zulip_network
 
