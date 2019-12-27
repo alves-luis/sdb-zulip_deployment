@@ -41,23 +41,40 @@
 #     group: root
 #     mode: 0644
 
+
+
 - name: Remove dashboards
-  become: yes
-  shell: rm /usr/share/metricbeat/kibana/7/dashboard/{{item}}
+  file:
+    path: /usr/share/metricbeat/kibana/7/dashboard/{{item}}
+    state: absent
   loop:
-    - 'Metricbeat-aerospike-overview.json '
-    - 'Metricbeat-c*'
+    - 'Metricbeat-aerospike-overview.json'
+    - 'Metricbeat-ceph-overview.json'
+    - 'Metricbeat-consul-overview.json'
+    - 'Metricbeat-containers-overview.json'
+    - 'Metricbeat-couchbase-overview.json'
+    - 'Metricbeat-couchdb-overview.json'
     - 'Metricbeat-golang-overview.json'
-    - 'Metricbeat-haproxy*'
-    - 'Metricbeat-k*'
-    - 'Metricbeat-m*'
+    - 'Metricbeat-haproxy-backend.json'
+    - 'Metricbeat-haproxy-http-frontend.json'
+    - 'Metricbeat-haproxy-http-server.json'
+    - 'Metricbeat-haproxy-overview.json'
+    - 'Metricbeat-haproxy-visualizations.json'
+    - 'Metricbeat-kafka-overview.json'
+    - 'Metricbeat-kubernetes-apiserver.json'
+    - 'Metricbeat-kubernetes-controller-manager.json'
+    - 'Metricbeat-kubernetes-overview.json'
+    - 'Metricbeat-kubernetes-proxy.json'
+    - 'Metricbeat-kubernetes-scheduler.json'
+    - 'Metricbeat-mongodb-overview.json'
+    - 'Metricbeat-mysql-overview.json'
     - 'Metricbeat-nats-overview.json'
     - 'Metricbeat-prometheus-overview.json'
     - 'Metricbeat-uwsgi-overview.json'
     - 'Metricbeat-zookeeper-overview.json'
     - 'metricbeat-windows-service.json'
 
-
+    
 - name: Setup metricbeat
   become: yes
   shell: metricbeat setup --dashboards

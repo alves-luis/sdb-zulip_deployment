@@ -7,8 +7,8 @@
   roles:
     - role: gcp
       vars:
-        gcp_zone: europe-west4-a
-        gcp_region: europe-west4
+        gcp_zone: europe-west3-a
+        gcp_region: europe-west3
         gcp_project: vernal-branch-257511
         gcp_cred_kind: serviceaccount
         gcp_cred_file: ~/.gcloud/gcloud.json
@@ -16,29 +16,15 @@
         source_image: projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-v20191113
         disk_size: 10
         disks:
-          - disk-01
-          - disk-02
-        disks_db:
-          - disk-db-01
-          - disk-db-02
-        disks_monitor:
-          - disk-monitor-01
+          - disk-pm-01
+          - disk-pm-02
         addresses:
-          - addr-01
-          - addr-02
-        addresses_db:
-          - addr-db-01
-          - addr-db-02
-        addresses_monitor:
-          - addr-monitor-01
+          - addr-pm-01
+          - addr-pm-02
         instances:
           - { index: 1, tag: app, name: zulip}         
-          #- { index: 2, tag: lb, name: nginx}
-        instances_monitor:
-          - { index: 1, tag: monitor, name: monitor}
-        # instances_db:
-        #   - { index: 1, tag: database, name: db-master}
-        #   - { index: 2, tag: database-slave, name: db-slave}
+          - { index: 2, tag: monitor, name: monitor}
+
 
 
 

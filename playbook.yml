@@ -20,83 +20,108 @@
           - disk-03
           - disk-04
           - disk-05
+          - disk-06
         addresses:
           - addr-01
           - addr-02
           - addr-03
           - addr-04
           - addr-05
+          - addr-06
         instances:
           - { index: 1, tag: zulip, name: instance-zulip }
           - { index: 2, tag: postgres, name: instance-postgres }
           - { index: 3, tag: redis, name: instance-redis }
           - { index: 4, tag: rabbitmq, name: instance-rabbitmq }
           - { index: 5, tag: memcached, name: instance-memcached }
+          - { index: 6, tag: monitor, name: instance-monitor}
 
-- hosts: all
+# - hosts: all
+#   become: yes
+#   roles:
+#     - docker
+
+# - hosts: zulip
+#   become: yes
+#   tasks:
+#     - name: Init a new swarm
+#       docker_swarm:
+#         state: present
+#         advertise_addr: "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}"
+#       register: swarm_info
+#     - name: Create an Overlay network
+#       docker_network:
+#         name: zulip_network
+#         driver: overlay
+#         scope: swarm
+#         attachable: yes
+#         ipam_config:
+#           - subnet: 10.10.10.0/24
+
+# - hosts:
+#     - redis
+#     - rabbitmq
+#     - memcached
+#     - postgres
+#   become: yes
+#   tasks:
+#     - name: Join swarm as workers
+#       docker_swarm:
+#         state: join
+#         advertise_addr: "{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}"
+#         join_token: "{{ hostvars[groups['zulip'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
+#         remote_addrs:
+#           - "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}:2377"
+
+# - hosts: all
+#   become: yes
+#   tasks:
+#     - name: Create base directory
+#       file:
+#         path: /opt/docker/zulip/
+#         state: directory
+#     - name: Create postgres directory
+#       file:
+#         path: /opt/docker/zulip/postgresql/data
+#         state: directory
+#     - name: Create rabbit directory
+#       file:
+#         path: /opt/docker/zulip/rabbitmq
+#         state: directory
+#     - name: Create redis directory
+#       file:
+#         path: /opt/docker/zulip/redis
+#         state: directory
+#     - name: Create zulip directory
+#       file:
+#         path: /opt/docker/zulip/zulip
+#         state: directory
+
+# - hosts: zulip
+#   become: yes
+#   roles:
+#     - role: docker-swarm
+#       vars:
+#         zulip_host: "{{ groups['zulip'][0] }}"
+
+
+
+# #################################################
+# ###                 MONITORING                ###
+# #################################################
+
+- hosts: monitor
   become: yes
   roles:
-    - docker
+    - { role: elastic-kibana, monitor_vm_ip: "{{ hostvars[groups['monitor'][0]].ansible_all_ipv4_addresses[0] }}" } # {{ groups['monitor'][0] }}
 
-- hosts: zulip
-  become: yes
-  tasks:
-    - name: Init a new swarm
-      docker_swarm:
-        state: present
-        advertise_addr: "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}"
-      register: swarm_info
-    - name: Create an Overlay network
-      docker_network:
-        name: zulip_network
-        driver: overlay
-        scope: swarm
-        attachable: yes
-        ipam_config:
-          - subnet: 10.10.10.0/24
 
 - hosts:
     - redis
     - rabbitmq
     - memcached
-    - postgres
-  become: yes
-  tasks:
-    - name: Join swarm as workers
-      docker_swarm:
-        state: join
-        advertise_addr: "{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}"
-        join_token: "{{ hostvars[groups['zulip'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
-        remote_addrs:
-          - "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}:2377"
-
-- hosts: all
-  become: yes
-  tasks:
-    - name: Create base directory
-      file:
-        path: /opt/docker/zulip/
-        state: directory
-    - name: Create postgres directory
-      file:
-        path: /opt/docker/zulip/postgresql/data
-        state: directory
-    - name: Create rabbit directory
-      file:
-        path: /opt/docker/zulip/rabbitmq
-        state: directory
-    - name: Create redis directory
-      file:
-        path: /opt/docker/zulip/redis
-        state: directory
-    - name: Create zulip directory
-      file:
-        path: /opt/docker/zulip/zulip
-        state: directory
-
-- hosts: zulip
+    - postgres 
+    - zulip
   become: yes
   roles:
-    - role: docker-swarm
-      vars:
-        zulip_host: "{{ groups['zulip'][0] }}"
+    - { role: metricbeat, monitor_vm_ip: "{{ hostvars[groups['monitor'][0]].ansible_all_ipv4_addresses[0] }}" }
