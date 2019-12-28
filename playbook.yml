@@ -6,12 +6,12 @@
   roles:
     - role: gcp
       vars:
-        gcp_zone: us-east1-c
-        gcp_region: us-east1
+        gcp_zone: europe-west4-a
+        gcp_region: europe-west4
         gcp_project: vernal-branch-257511
         gcp_cred_kind: serviceaccount
         gcp_cred_file: ~/.gcloud/gcloud.json
-        gcp_machine_type: n1-standard-1
+        gcp_machine_type: n1-standard-2
         source_image: projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-v20191113
         disk_size: 10
         disks:
