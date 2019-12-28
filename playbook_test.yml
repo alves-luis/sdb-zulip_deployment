@@ -1,0 +1,177 @@
+---
+# Cria VMs, discos, redes, firewalls......
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+    - role: gcp-test
+      vars:
+        gcp_zone: europe-west4-a
+        gcp_region: europe-west4
+        gcp_project: vernal-branch-257511
+        gcp_cred_kind: serviceaccount
+        gcp_cred_file: ~/.gcloud/gcloud.json
+        gcp_machine_type: n1-standard-2
+        source_image: projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-v20191113
+        disk_size: 10
+        disks:
+          - disk-test-01
+          - disk-test-02
+          - disk-test-03
+          - disk-test-04
+          - disk-test-05
+          - disk-test-06
+        addresses:
+          - addr-test-01
+          - addr-test-02
+          - addr-test-03
+          - addr-test-04
+          - addr-test-05
+          - addr-test-06
+        instances:
+          - { index: 1, tag: zulip, name: test-manager-1 }
+          - { index: 2, tag: postgres, name: test-worker-1 }
+          - { index: 3, tag: redis, name: test-manager-2 }
+          - { index: 4, tag: rabbitmq, name: test-manager-3 }
+          - { index: 5, tag: memcached, name: test-worker-2 }
+          - { index: 6, tag: monitor, name: test-monitor}
+
+
+- hosts:
+    - zulip
+    - redis
+    - rabbitmq
+    - memcached
+    - postgres
+  become: yes
+  roles:
+    - docker
+
+- hosts: zulip
+  become: yes
+  tasks:
+    - name: Init a new swarm
+      docker_swarm:
+        state: present
+        advertise_addr: "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}"
+      register: swarm_info
+    - name: Create an Overlay network
+      docker_network:
+        name: zulip_network
+        driver: overlay
+        scope: swarm
+        attachable: yes
+        ipam_config:
+          - subnet: 10.10.10.0/24
+
+- hosts:
+    - redis
+    - rabbitmq
+  become: yes
+  tasks:
+    - name: Join swarm as managers
+      docker_swarm:
+        state: join
+        advertise_addr: "{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}"
+        join_token: "{{ hostvars[groups['zulip'][0]].swarm_info.swarm_facts.JoinTokens.Manager }}"
+        remote_addrs:
+          - "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}:2377"
+
+- hosts:
+    - memcached
+    - postgres
+  become: yes
+  tasks:
+    - name: Join swarm as workers
+      docker_swarm:
+        state: join
+        advertise_addr: "{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}"
+        join_token: "{{ hostvars[groups['zulip'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
+        remote_addrs:
+          - "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}:2377"
+
+- hosts:
+    - zulip
+  become: yes
+  tasks:
+    - name: Install nfs-common
+      apt:
+        name: nfs-common
+        state: latest
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: Create base directory
+      file:
+        path: /opt/docker/zulip/
+        state: directory
+
+    - name: Mount filestore
+      mount:
+        path: /opt/docker/zulip/
+        src: "{{ hostvars['localhost'].filestore.networks[0].ipAddresses[0] }}:/{{ hostvars['localhost'].filestore.fileShares[0].name }}"
+        fstype: nfs
+        opts: defaults
+        state: mounted
+
+    - name: Create postgres directory
+      file:
+        path: /opt/docker/zulip/postgresql/data
+        state: directory
+
+    - name: Create rabbit directory
+      file:
+        path: /opt/docker/zulip/rabbitmq
+        state: directory
+
+    - name: Create redis directory
+      file:
+        path: /opt/docker/zulip/redis
+        state: directory
+
+    - name: Create zulip directory
+      file:
+        path: /opt/docker/zulip/zulip
+        state: directory
+
+- hosts:
+    - redis
+    - rabbitmq
+    - memcached
+    - postgres
+  become: yes
+  roles:
+    - role: filestore
+      vars:
+        filestore_name : "{{ hostvars['localhost'].filestore.fileShares[0].name }}"
+        filestore_ip : "{{ hostvars['localhost'].filestore.networks[0].ipAddresses[0] }}"
+
+
+- hosts: zulip
+  become: yes
+  roles:
+    - role: docker-swarm
+      vars:
+        zulip_host: "{{ groups['zulip'][0] }}"
+
+
+
+# #################################################
+# ###                 MONITORING                ###
+# #################################################
+
+- hosts: monitor
+  become: yes
+  roles:
+    - { role: elastic-kibana, monitor_vm_ip: "{{ hostvars['localhost'].instance['results'][5].networkInterfaces[0].networkIP }}" } # 5 -> index 6 - 1
+
+
+- hosts:
+    - zulip
+    - redis
+    - rabbitmq
+    - memcached
+    - postgres
+  become: yes
+  roles:
+    - { role: metricbeat-test, monitor_vm_ip: "{{ hostvars['localhost'].instance['results'][5].networkInterfaces[0].networkIP }}" }

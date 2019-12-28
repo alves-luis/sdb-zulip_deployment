@@ -1,0 +1,91 @@
+
+---
+
+#####################################################################
+###                          REPOSITORY                           ###
+#####################################################################
+
+# - name: HTTPS APT transport for metricbeat repository.
+#   apt:
+#     name: apt-transport-https
+#     state: present
+
+- name: Add metricbeat apt key.
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add metricbeat repository.
+  apt_repository:
+    repo: 'deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main'
+    state: present
+    update_cache: true
+
+
+    
+#####################################################################
+###                          METRICBEAT                           ###
+#####################################################################  
+
+- name: Install Metricbeat.
+  package:
+    name: metricbeat
+    state: "{{ metricbeat_package_state }}"
+
+
+- name: Configure metricbeat.
+  template:
+    src: "metricbeat.yml.j2"
+    dest: /etc/metricbeat/metricbeat.yml
+#     owner: root
+#     group: root
+#     mode: 0644
+
+
+
+- name: Remove dashboards
+  file:
+    path: /usr/share/metricbeat/kibana/7/dashboard/{{item}}
+    state: absent
+  loop:
+    - 'Metricbeat-apache-overview.json'
+    - 'Metricbeat-aerospike-overview.json'
+    - 'Metricbeat-ceph-overview.json'
+    - 'Metricbeat-consul-overview.json'
+    - 'Metricbeat-containers-overview.json'
+    - 'Metricbeat-couchbase-overview.json'
+    - 'Metricbeat-couchdb-overview.json'
+    - 'Metricbeat-golang-overview.json'
+    - 'Metricbeat-haproxy-backend.json'
+    - 'Metricbeat-haproxy-frontend.json'
+    - 'Metricbeat-haproxy-http-backend.json'
+    - 'Metricbeat-haproxy-http-frontend.json'
+    - 'Metricbeat-haproxy-http-server.json'
+    - 'Metricbeat-haproxy-overview.json'
+    - 'Metricbeat-haproxy-visualizations.json'
+    - 'Metricbeat-kafka-overview.json'
+    - 'Metricbeat-kubernetes-apiserver.json'
+    - 'Metricbeat-kubernetes-controller-manager.json'
+    - 'Metricbeat-kubernetes-overview.json'
+    - 'Metricbeat-kubernetes-proxy.json'
+    - 'Metricbeat-kubernetes-scheduler.json'
+    - 'Metricbeat-mongodb-overview.json'
+    - 'Metricbeat-mysql-overview.json'
+    - 'Metricbeat-nats-overview.json'
+    - 'metricbeat-nginx-overview.json'
+    - 'Metricbeat-prometheus-overview.json'
+    - 'Metricbeat-uwsgi-overview.json'
+    - 'Metricbeat-zookeeper-overview.json'
+    - 'metricbeat-windows-service.json'
+
+    
+- name: Setup metricbeat
+  become: yes
+  shell: metricbeat setup --dashboards
+
+
+- name: Start metricbeat
+  service:
+    name: metricbeat
+    state: "{{ metricbeat_service_state }}"
+    enabled: "{{ metricbeat_service_enabled }}"
