@@ -70,6 +70,7 @@
         target_port: 443
     state: present
     env:
+      DISABLE_HTTPS: 'True'
       DB_HOST: "{{ db_host }}"
       DB_HOST_PORT: '5432'
       DB_USER: 'zulip'
