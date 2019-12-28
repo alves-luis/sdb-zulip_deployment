@@ -48,6 +48,7 @@
     path: /usr/share/metricbeat/kibana/7/dashboard/{{item}}
     state: absent
   loop:
+    - 'Metricbeat-apache-overview.json'
     - 'Metricbeat-aerospike-overview.json'
     - 'Metricbeat-ceph-overview.json'
     - 'Metricbeat-consul-overview.json'
@@ -56,6 +57,8 @@
     - 'Metricbeat-couchdb-overview.json'
     - 'Metricbeat-golang-overview.json'
     - 'Metricbeat-haproxy-backend.json'
+    - 'Metricbeat-haproxy-frontend.json'
+    - 'Metricbeat-haproxy-http-backend.json'
     - 'Metricbeat-haproxy-http-frontend.json'
     - 'Metricbeat-haproxy-http-server.json'
     - 'Metricbeat-haproxy-overview.json'
@@ -69,6 +72,7 @@
     - 'Metricbeat-mongodb-overview.json'
     - 'Metricbeat-mysql-overview.json'
     - 'Metricbeat-nats-overview.json'
+    - 'metricbeat-nginx-overview.json'
     - 'Metricbeat-prometheus-overview.json'
     - 'Metricbeat-uwsgi-overview.json'
     - 'Metricbeat-zookeeper-overview.json'

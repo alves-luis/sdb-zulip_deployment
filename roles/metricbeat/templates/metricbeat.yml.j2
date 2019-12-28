@@ -166,19 +166,19 @@ metricbeat.modules:
 - module: system
   metricsets:
     - cpu             # CPU usage
-    - load            # CPU load averages
+    #- load            # CPU load averages
     - memory          # Memory usage
     - network         # Network IO
-    - process         # Per process metrics
-    - process_summary # Process summary
-    - uptime          # System Uptime
-    - socket_summary  # Socket summary
-    - core           # Per CPU core usage
+    #- process         # Per process metrics
+    #- process_summary # Process summary
+    #- uptime          # System Uptime
+    #- socket_summary  # Socket summary
+    #- core           # Per CPU core usage
     - diskio         # Disk IO
-    - filesystem     # File system usage for each mountpoint
-    - fsstat         # File system summary metrics
-    - raid           # Raid
-    - socket         # Sockets and connection info (linux only)
+    #- filesystem     # File system usage for each mountpoint
+    #- fsstat         # File system summary metrics
+    #- raid           # Raid
+    #- socket         # Sockets and connection info (linux only)
   enabled: true
   period: 10s
   processes: ['.*']
@@ -239,19 +239,18 @@ metricbeat.modules:
 
 
 
-
 #-------------------------------- Docker Module --------------------------------
 - module: docker
   metricsets:
     - "container"
     - "cpu"
-    - "diskio"
-    - "event"
+    #- "diskio"
+    #- "event"
     - "healthcheck"
-    - "info"
+    #- "info"
     #- "image"
-    - "memory"
-    - "network"
+    #- "memory"
+    #- "network"
   hosts: ["unix:///var/run/docker.sock"]
   period: 10s
   enabled: true
@@ -279,18 +278,6 @@ metricbeat.modules:
   enabled: true
 
 
-#-------------------------------- Nginx Module --------------------------------
-- module: nginx
-  metricsets: ["stubstatus"]
-  enabled: true
-  period: 10s
-
-  # Nginx hosts
-  hosts: ["http://127.0.0.1"]
-
-  # Path to server status. Default server-status
-  server_status_path: "server-status"
-
 #------------------------------ PostgreSQL Module ------------------------------
 - module: postgresql
   enabled: true
@@ -299,7 +286,7 @@ metricbeat.modules:
     - database
 
     # Stats about the background writer process's activity
-    - bgwriter
+    #- bgwriter
 
     # Stats about every PostgreSQL process
     - activity
@@ -310,18 +297,21 @@ metricbeat.modules:
   # postgres://localhost:5432?sslmode=disable
   # The available parameters are documented here:
   # https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters
-  hosts: ["postgres://localhost:5432"]
+  hosts: ["postgres://zulip:password@localhost:5432/zulip?sslmode=disable"]
 
   # Username to use when connecting to PostgreSQL. Empty by default.
-  username: zulip
+  #username: zulip
 
   # Password to use when connecting to PostgreSQL. Empty by default.
-  password: password
+  #password: password
 
 
 #------------------------------- RabbitMQ Module -------------------------------
 - module: rabbitmq
-  metricsets: ["node", "queue", "connection"]
+  metricsets: 
+    - node
+    - queue
+    #- connection
   enabled: true
   period: 10s
   hosts: ["localhost:5672"]
