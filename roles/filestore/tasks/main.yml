@@ -6,6 +6,10 @@
     update_cache: yes
     force_apt_get: yes
 
+- name: Create base directory
+  file:
+    path: /opt/docker/zulip/
+    state: directory
 
 - name: Mount filestore
   mount:
@@ -14,3 +18,5 @@
     fstype: nfs
     opts: defaults
     state: mounted
+
+   

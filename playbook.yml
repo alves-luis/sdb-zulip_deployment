@@ -29,15 +29,15 @@
           - addr-05
           - addr-06
         instances:
-          - { index: 1, tag: zulip, name: instance-zulip }
-          - { index: 2, tag: postgres, name: instance-postgres }
-          - { index: 3, tag: redis, name: instance-redis }
-          - { index: 4, tag: rabbitmq, name: instance-rabbitmq }
-          - { index: 5, tag: memcached, name: instance-memcached }
+          - { index: 1, tag: zulip, name: instance-manager-1 }
+          - { index: 2, tag: postgres, name: instance-worker-1 }
+          - { index: 3, tag: redis, name: instance-manager-2 }
+          - { index: 4, tag: rabbitmq, name: instance-manager-3 }
+          - { index: 5, tag: memcached, name: instance-worker-2 }
           - { index: 6, tag: monitor, name: instance-monitor}
 
 
-- hosts: 
+- hosts:
     - zulip
     - redis
     - rabbitmq
@@ -67,6 +67,17 @@
 - hosts:
     - redis
     - rabbitmq
+  become: yes
+  tasks:
+    - name: Join swarm as managers
+      docker_swarm:
+        state: join
+        advertise_addr: "{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}"
+        join_token: "{{ hostvars[groups['zulip'][0]].swarm_info.swarm_facts.JoinTokens.Manager }}"
+        remote_addrs:
+          - "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}:2377"
+
+- hosts:
     - memcached
     - postgres
   become: yes
@@ -81,35 +92,49 @@
 
 - hosts:
     - zulip
-    - redis
-    - rabbitmq
-    - memcached
-    - postgres
   become: yes
   tasks:
+    - name: Install nfs-common
+      apt:
+        name: nfs-common
+        state: latest
+        update_cache: yes
+        force_apt_get: yes
+
     - name: Create base directory
       file:
         path: /opt/docker/zulip/
         state: directory
+
+    - name: Mount filestore
+      mount:
+        path: /opt/docker/zulip/
+        src: "{{ hostvars['localhost'].filestore.networks[0].ipAddresses[0] }}:/{{ hostvars['localhost'].filestore.fileShares[0].name }}"
+        fstype: nfs
+        opts: defaults
+        state: mounted
+
     - name: Create postgres directory
       file:
         path: /opt/docker/zulip/postgresql/data
         state: directory
+
     - name: Create rabbit directory
       file:
         path: /opt/docker/zulip/rabbitmq
         state: directory
+
     - name: Create redis directory
       file:
         path: /opt/docker/zulip/redis
         state: directory
+
     - name: Create zulip directory
       file:
         path: /opt/docker/zulip/zulip
         state: directory
 
-- hosts: 
-    - zulip
+- hosts:
     - redis
     - rabbitmq
     - memcached
@@ -147,7 +172,6 @@
     - rabbitmq
     - memcached
     - postgres
-
   become: yes
   roles:
     - { role: metricbeat, monitor_vm_ip: "{{ hostvars['localhost'].instance['results'][5].networkInterfaces[0].networkIP }}" }

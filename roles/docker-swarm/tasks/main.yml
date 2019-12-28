@@ -53,9 +53,6 @@
   docker_swarm_service:
     name: redis
     image: 'quay.io/sameersbn/redis:latest'
-    publish:
-      - published_port: 6379
-        target_port: 6379
     mounts:
       - target: '/var/lib/redis'
         source: '/opt/docker/zulip/redis'
@@ -73,9 +70,11 @@
         target_port: 443
     state: present
     env:
+      DISABLE_HTTPS: 'True'
       DB_HOST: "{{ db_host }}"
       DB_HOST_PORT: '5432'
       DB_USER: 'zulip'
+      SETTING_REMOTE_POSTGRES_SSLMODE: 'allow'
       SSL_CERTIFICATE_GENERATION: 'self-signed'
       SETTING_MEMCACHED_LOCATION: "{{ memcached_host }}"
       SETTING_RABBITMQ_HOST: "{{ rabbitmq_host }}"
@@ -104,3 +103,6 @@
     reservations:
       cpus: 1
       memory: 3000M
+    placement:
+      preferences:
+        - spread: node.role == manager

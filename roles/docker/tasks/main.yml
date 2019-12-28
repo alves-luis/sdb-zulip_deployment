@@ -5,6 +5,10 @@
     state: latest
     update_cache: yes
     force_apt_get: yes
+  register: apt_status
+  until: apt_status is success
+  retries: 5
+  delay: 10
 
 - name: Install required system packages
   apt:
@@ -29,6 +33,10 @@
     name: docker-ce
     state: latest
     update_cache: yes
+  register: docker_status
+  until: docker_status is success
+  retries: 5
+  delay: 10
 
 - name: Install Docker module for Python
   pip:
