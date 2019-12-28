@@ -4,10 +4,10 @@ projects:
   - vernal-branch-257511
 
 zones:
-  - europe-west4-a
+  - us-east1-c
 
 filters:
-  - name = zulip-instance*
+  - name = instance-*
 
 keyed_groups:
   - prefix: ''

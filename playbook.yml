@@ -79,35 +79,6 @@
         remote_addrs:
           - "{{ hostvars[groups['zulip'][0]].ansible_default_ipv4.address }}:2377"
 
-- hosts:
-    - zulip
-    - redis
-    - rabbitmq
-    - memcached
-    - postgres
-  become: yes
-  tasks:
-    - name: Create base directory
-      file:
-        path: /opt/docker/zulip/
-        state: directory
-    - name: Create postgres directory
-      file:
-        path: /opt/docker/zulip/postgresql/data
-        state: directory
-    - name: Create rabbit directory
-      file:
-        path: /opt/docker/zulip/rabbitmq
-        state: directory
-    - name: Create redis directory
-      file:
-        path: /opt/docker/zulip/redis
-        state: directory
-    - name: Create zulip directory
-      file:
-        path: /opt/docker/zulip/zulip
-        state: directory
-
 - hosts: 
     - zulip
     - redis
@@ -147,7 +118,6 @@
     - rabbitmq
     - memcached
     - postgres
-
   become: yes
   roles:
     - { role: metricbeat, monitor_vm_ip: "{{ hostvars['localhost'].instance['results'][5].networkInterfaces[0].networkIP }}" }
