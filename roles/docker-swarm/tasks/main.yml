@@ -76,6 +76,7 @@
       DB_HOST: "{{ db_host }}"
       DB_HOST_PORT: '5432'
       DB_USER: 'zulip'
+      SETTING_REMOTE_POSTGRES_SSLMODE: 'allow'
       SSL_CERTIFICATE_GENERATION: 'self-signed'
       SETTING_MEMCACHED_LOCATION: "{{ memcached_host }}"
       SETTING_RABBITMQ_HOST: "{{ rabbitmq_host }}"
@@ -104,3 +105,6 @@
     reservations:
       cpus: 1
       memory: 3000M
+    placement:
+      preferences:
+        - spread: node.role == manager
