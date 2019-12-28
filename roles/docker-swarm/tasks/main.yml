@@ -53,9 +53,6 @@
   docker_swarm_service:
     name: redis
     image: 'quay.io/sameersbn/redis:latest'
-    publish:
-      - published_port: 6379
-        target_port: 6379
     mounts:
       - target: '/var/lib/redis'
         source: '/opt/docker/zulip/redis'
