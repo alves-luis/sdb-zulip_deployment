@@ -1,0 +1,11 @@
+- name: Generate disks on GCP
+  include: disks.yml
+
+- name: Generate network on GCP
+  include: network.yml
+
+- name: Generate filestore on GCP
+  include: filestore.yml
+
+- name: Generate instances on GCP
+  include: instances.yml

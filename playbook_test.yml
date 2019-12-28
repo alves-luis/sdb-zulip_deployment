@@ -4,7 +4,7 @@
   connection: local
   gather_facts: no
   roles:
-    - role: gcp
+    - role: gcp-test
       vars:
         gcp_zone: europe-west4-a
         gcp_region: europe-west4
@@ -15,26 +15,26 @@
         source_image: projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-v20191113
         disk_size: 10
         disks:
-          - disk-01
-          - disk-02
-          - disk-03
-          - disk-04
-          - disk-05
-          - disk-06
+          - disk-test-01
+          - disk-test-02
+          - disk-test-03
+          - disk-test-04
+          - disk-test-05
+          - disk-test-06
         addresses:
-          - addr-01
-          - addr-02
-          - addr-03
-          - addr-04
-          - addr-05
-          - addr-06
+          - addr-test-01
+          - addr-test-02
+          - addr-test-03
+          - addr-test-04
+          - addr-test-05
+          - addr-test-06
         instances:
-          - { index: 1, tag: zulip, name: instance-manager-1 }
-          - { index: 2, tag: postgres, name: instance-worker-1 }
-          - { index: 3, tag: redis, name: instance-manager-2 }
-          - { index: 4, tag: rabbitmq, name: instance-manager-3 }
-          - { index: 5, tag: memcached, name: instance-worker-2 }
-          - { index: 6, tag: monitor, name: instance-monitor}
+          - { index: 1, tag: zulip, name: test-manager-1 }
+          - { index: 2, tag: postgres, name: test-worker-1 }
+          - { index: 3, tag: redis, name: test-manager-2 }
+          - { index: 4, tag: rabbitmq, name: test-manager-3 }
+          - { index: 5, tag: memcached, name: test-worker-2 }
+          - { index: 6, tag: monitor, name: test-monitor}
 
 
 - hosts:
@@ -174,4 +174,4 @@
     - postgres
   become: yes
   roles:
-    - { role: metricbeat, monitor_vm_ip: "{{ hostvars['localhost'].instance['results'][5].networkInterfaces[0].networkIP }}" }
+    - { role: metricbeat-test, monitor_vm_ip: "{{ hostvars['localhost'].instance['results'][5].networkInterfaces[0].networkIP }}" }
