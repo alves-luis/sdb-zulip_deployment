@@ -6,8 +6,8 @@
   roles:
     - role: gcp-test
       vars:
-        gcp_zone: europe-west4-a
-        gcp_region: europe-west4
+        gcp_zone: us-east1-c
+        gcp_region: us-east1
         gcp_project: vernal-branch-257511
         gcp_cred_kind: serviceaccount
         gcp_cred_file: ~/.gcloud/gcloud.json

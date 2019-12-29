@@ -80,7 +80,7 @@
       SETTING_REDIS_HOST: "{{ redis_host }}"
       SECRETS_email_password: '123456789'
       # These should match POSTGRES_PASSWORD and RABBITMQ_DEFAULT_PASS.
-      SECRETS_rabbitmq_password: " {{ rabbit_password }}"
+      SECRETS_rabbitmq_password: "{{ rabbit_password }}"
       SECRETS_postgres_password: "{{ db_password }}"
       SECRETS_secret_key: "{{ secret_key }}"
       SETTING_EXTERNAL_HOST: "{{ zulip_host }}"
