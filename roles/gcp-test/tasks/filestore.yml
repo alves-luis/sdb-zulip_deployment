@@ -1,6 +1,6 @@
 - name: create a filestore instance
   gcp_filestore_instance:
-    name: zulip-nfs
+    name: zulip-test-nfs
     zone: "{{ gcp_zone }}"
     tier: STANDARD
     file_shares:
